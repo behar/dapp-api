@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { Observable } from 'rxjs';
 import { Member } from 'src/app/_models/member';
+import { BusyService } from 'src/app/_services/busy.service';
 import { MemberServiceService } from 'src/app/_services/member-service.service';
 
 @Component({
@@ -8,17 +11,19 @@ import { MemberServiceService } from 'src/app/_services/member-service.service';
   styleUrls: ['./member-list.component.css']
 })
 export class MemberListComponent implements OnInit {
-members: Member[];
+members$: Observable<Member[]>;
   constructor(private memberSvc: MemberServiceService) { }
 
   ngOnInit(): void {
-    this.loadUsers();
+    // this.loadUsers();
+    this.members$ = this.memberSvc.getMembers();
+
   }
 
-  loadUsers(){
-    this.memberSvc.getMembers().subscribe(response => {
-      this.members = response;
-    })
-  }
+  // loadUsers(){
+  //   this.memberSvc.getMembers().subscribe(response => {
+  //     this.members = response;
+  //   })
+  // }
 
 }

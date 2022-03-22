@@ -6,7 +6,7 @@ import {
   HttpInterceptor
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { NavigationExtras, Router } from '@angular/router';
+import { Router, NavigationExtras } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { catchError } from 'rxjs/operators';
 
@@ -16,10 +16,8 @@ export class ErrorInterceptor implements HttpInterceptor {
   constructor(private router: Router, private toastr: ToastrService) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-
     return next.handle(request).pipe(
       catchError(error => {
-        debugger;
         if (error) {
           switch (error.status) {
             case 400:
@@ -31,7 +29,7 @@ export class ErrorInterceptor implements HttpInterceptor {
                   }
                 }
                 throw modalStateErrors.flat();
-              } else if (typeof(error.error) === 'object') {
+              } else if (typeof(error.error) === 'object'){
                 this.toastr.error(error.statusText, error.status);
               } else {
                 this.toastr.error(error.error, error.status);

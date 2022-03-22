@@ -12,20 +12,15 @@ import { delay, finalize } from 'rxjs/operators';
 @Injectable()
 export class LoadingInterceptor implements HttpInterceptor {
 
-  constructor(private busySvc: BusyService) {}
+  constructor(private busyService: BusyService) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    console.log('busy');
-    
-    this.busySvc.busy();
-
+    this.busyService.busy();
     return next.handle(request).pipe(
       delay(1000),
-      finalize(() =>{
-        this.busySvc.idle();
-        console.log('idle');
-        
+      finalize(() => {
+        this.busyService.idle();
       })
-    );
+    )
   }
 }

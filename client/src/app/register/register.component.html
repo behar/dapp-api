@@ -1,77 +1,44 @@
-<div class="container">
-    <!-- template form -->
-    <!-- <form #form="ngForm" (ngSubmit)="register()" autocomplete="off">
-        <h2 class="text-center text-primary"> Sign Up</h2>
+<form [formGroup]='registerForm' (ngSubmit)="registerForm.valid && register()" autocomplete="off">
+    <h2 class="text-center text-primary">Sign up</h2>
+    <hr>
 
-        <hr>
-        <div class="form-group">
-            <input type="text" name="username" class="form-control" [(ngModel)]="model.username" placeholder="Username">
-        </div>
-        <div class="form-group">
-            <input type="password" name="password" class="form-control" [(ngModel)]="model.password" placeholder="Password">
-        </div>
-        <div class="form-group text-center">
-            <button type="submit" class="btn btn-success mr-2">Register</button>
-            <button type="button" class="btn btn-outline-default mr-2" (click)="cancel()">Cancel</button>
-        </div>
-    </form> -->
+    <div class="form-group">
+        <label class="control-label" style="margin-right: 10px;">I am a: </label>
+        <label class="radio-inline">
+            <input type="radio" value='male' formControlName='gender'> Male
+        </label>
+        <label class="radio-inline">
+            <input type="radio" value='female' formControlName='gender' class="ml-3"> Female
+        </label>
+    </div>
 
-    <form [formGroup]="registerForm" (ngSubmit)="registerForm.valid && register()" autocomplete="off">
-        <h2 class="text-center text-primary"> Sign Up</h2>
-
-        <hr>
-
-        <!-- reactive form -->
-        <!-- <div class="form-group">
-            <input [class.is-invalid]='registerForm.get("username").errors && registerForm.get("username").touched'
-            type="text" autocomplete="new-password" class="form-control"  placeholder="Username">
-            <div class="invalid-feedback">Please enter username</div>
-        </div>
-        <div class="form-group">
-            <input  [class.is-invalid]='registerForm.get("password").errors && registerForm.get("password").touched'
-            type="password" formControlName="password"  class="form-control"  placeholder="Password" autocomplete="new-password">
-            <div *ngIf="registerForm.get('password').hasError('required')" class="invalid-feedback">Please enter password</div>
-            <div *ngIf="registerForm.get('password').hasError('minlength')" class="invalid-feedback">Passsword min length 4 chars</div>
-        </div>
-        <div class="form-group">
-            <input [class.is-invalid]='registerForm.get("confirmPassword").errors && registerForm.get("confirmPassword").touched'
-            type="password" formControlName="confirmPassword"  class="form-control"  placeholder=" Confirm Password">
-            <div *ngIf="registerForm.get('confirmPassword').hasError('required')" class="invalid-feedback">Please enter  CONFIRM password</div>
-            <div *ngIf="registerForm.get('confirmPassword').hasError('isMatching')" class="invalid-feedback">passwords must match</div>
-        </div> -->
-        <div class="form-group">
-            <label class="control-label" style="margin-right: 10px;">I am a:</label>
-            <label class="radio-inline">
-                <input type="radio" value="male" formControlName="gender"> Male
-            </label>
-            <label class="radio-inline">
-                <input type="radio" value="female" formControlName="gender" class="ml-3"> Male
-            </label>
-        </div>
-        <!-- custom controls -->
-<app-text-input [formControl]='registerForm.controls["username"]' [label]='"Username"'></app-text-input>
-<app-text-input [formControl]='registerForm.controls["knownAs"]' [label]='"Known As"'></app-text-input>
-<app-date-input [formControl]='registerForm.controls["dateOfBirth"]' [maxDate]="maxDate" [label]='"Date of Birth"'></app-date-input>
-<app-text-input [formControl]='registerForm.controls["city"]' [label]='"City"'></app-text-input>
-<app-text-input [formControl]='registerForm.controls["country"]' [label]='"Country"'></app-text-input>
-
-<app-text-input [formControl]='registerForm.controls["password"]' [label]='"Password"' [type]='"password"'>
-</app-text-input>
-<app-text-input [formControl]='registerForm.controls["confirmPassword"]' [label]='"Confirm Password"'
-    [type]='"password"'></app-text-input>
-
+    <app-text-input [formControl]='registerForm.controls["username"]' 
+        [label]='"Username"'></app-text-input>
+    <app-text-input [formControl]='registerForm.controls["knownAs"]' 
+        [label]='"Known As"'></app-text-input>
+    <app-date-input [formControl]='registerForm.controls["dateOfBirth"]' 
+        [label]='"Date Of Birth"' [maxDate]='maxDate'></app-date-input>
+    <app-text-input [formControl]='registerForm.controls["city"]' 
+        [label]='"City"'></app-text-input>
+    <app-text-input [formControl]='registerForm.controls["country"]' 
+        [label]='"Country"'></app-text-input>
+    <app-text-input [formControl]='registerForm.controls["password"]' 
+        [label]='"Password"' [type]='"password"'>
+    </app-text-input>
+    <app-text-input [formControl]='registerForm.controls["confirmPassword"]' 
+        [label]='"Confirm Password"'
+        [type]='"password"'></app-text-input>
 
     <div class="row" *ngIf="validationErrors.length > 0">
         <ul class="text-danger">
-            <li *ngFor="let item of validationErrors">{{item}}</li>
+            <li *ngFor="let error of validationErrors">
+                {{error}}
+            </li>
         </ul>
     </div>
 
-
-        <div class="form-group text-center">
-            <button [disabled]="!registerForm.valid" type="submit" class="btn btn-success mr-2">Register</button>
-            <button type="button" class="btn btn-outline-default mr-2" (click)="cancel()">Cancel</button>
-        </div>
-    </form>
-
-</div>
+    <div class="form-group text-center">
+        <button [disabled]='!registerForm.valid' class="btn btn-success mr-2" type="submit">Register</button>
+        <button class="btn btn-default mr-2" (click)="cancel()" type="button">Cancel</button>
+    </div>
+</form>

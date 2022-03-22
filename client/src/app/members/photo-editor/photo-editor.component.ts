@@ -1,42 +1,64 @@
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
-import { Component, Input, OnInit } from '@angular/core';
-import { FileUploader } from 'ng2-file-upload';
-import { take } from 'rxjs/operators';
+import { Component, OnInit, Input } from '@angular/core';
 import { Member } from 'src/app/_models/member';
-import { Photo } from 'src/app/_models/photo';
-import { User } from 'src/app/_models/user';
-import { AccountService } from 'src/app/_services/account.service';
-import { MemberServiceService } from 'src/app/_services/member-service.service';
+import { FileUploader } from 'ng2-file-upload';
 import { environment } from 'src/environments/environment';
+import { AccountService } from 'src/app/_services/account.service';
+import { User } from 'src/app/_models/user';
+import { take } from 'rxjs/operators';
+import { MembersService } from 'src/app/_services/members.service';
+import { Photo } from 'src/app/_models/photo';
 
 @Component({
   selector: 'app-photo-editor',
   templateUrl: './photo-editor.component.html',
-  styleUrls: ['./photo-editor.component.css'],
+  styleUrls: ['./photo-editor.component.css']
 })
 export class PhotoEditorComponent implements OnInit {
   @Input() member: Member;
-  uploader: FileUploader
-  hasBaseDropZoneOver = false;
+  uploader: FileUploader;
+  hasBaseDropzoneOver = false;
   baseUrl = environment.apiUrl;
   user: User;
-  hasAnotherDropZoneOver:boolean;
-  response:string;
- 
-  constructor (private accountSvc: AccountService, private memberSvc: MemberServiceService){
 
-    this.accountSvc.currentUser$.pipe(take(1)).subscribe(user => this.user = user);
+  constructor(private accountService: AccountService, private memberService: MembersService) { 
+    this.accountService.currentUser$.pipe(take(1)).subscribe(user => this.user = user);
+  }
 
+  ngOnInit(): void {
+    this.initializeUploader();
+  }
+
+  fileOverBase(e: any) {
+    this.hasBaseDropzoneOver = e;
+  }
+
+  setMainPhoto(photo: Photo) {
+    this.memberService.setMainPhoto(photo.id).subscribe(() => {
+      this.user.photoUrl = photo.url;
+      this.accountService.setCurrentUser(this.user);
+      this.member.photoUrl = photo.url;
+      this.member.photos.forEach(p => {
+        if (p.isMain) p.isMain = false;
+        if (p.id === photo.id) p.isMain = true;
+      })
+    })
+  } 
+
+  deletePhoto(photoId: number) {
+    this.memberService.deletePhoto(photoId).subscribe(() => {
+      this.member.photos = this.member.photos.filter(x => x.id !== photoId);
+    })
+  }
+
+  initializeUploader() {
     this.uploader = new FileUploader({
       url: this.baseUrl + 'users/add-photo',
       authToken: 'Bearer ' + this.user.token,
       isHTML5: true,
+      allowedFileType: ['image'],
       removeAfterUpload: true,
       autoUpload: false,
-      maxFileSize: 10*1024*1024,
-      // disableMultipart: true, // 'DisableMultipart' must be 'true' for formatDataFunction to be called.
-      allowedFileType:['image']
-
+      maxFileSize: 10 * 1024 * 1024
     });
 
     this.uploader.onAfterAddingFile = (file) => {
@@ -44,50 +66,16 @@ export class PhotoEditorComponent implements OnInit {
     }
 
     this.uploader.onSuccessItem = (item, response, status, headers) => {
-      console.log(response);
-      
       if (response) {
         const photo: Photo = JSON.parse(response);
         this.member.photos.push(photo);
-        if (photo.isMain) {
-          this.user.photoUrl = photo.url;
-          this.member.photoUrl = photo.url;
-          this.accountSvc.setCurrentUser(this.user);
-        }
+         if (photo.isMain) {
+           this.user.photoUrl = photo.url;
+           this.member.photoUrl = photo.url;
+           this.accountService.setCurrentUser(this.user);
+         }
       }
     }
- 
-    this.hasBaseDropZoneOver = false;
-    this.hasAnotherDropZoneOver = false;
- 
-    this.response = '';
- 
-    // this.uploader.response.subscribe( res => this.response = res );
-  }
- 
-  public fileOverBase(e:any):void {
-    this.hasBaseDropZoneOver = e;
-  }
-
-  ngOnInit(): void {
-    
-  }
-
-  setMainPhoto(photo: Photo){
-    this.memberSvc.setMainPhoto(photo.id).subscribe(() => {
-      this.user.photoUrl = photo.url;
-      this.accountSvc.setCurrentUser(this.user);
-      this.member.photoUrl =photo.url;
-      this.member.photos.forEach(p=> {
-        if (p.isMain) p.isMain = false;
-        if (p.id === photo.id) p.isMain = true;
-      })
-    });
-  }
-  deletePhoto(photoId: number) {
-    this.memberSvc.deletePhoto(photoId).subscribe(() =>{
-      this.member.photos = this.member.photos.filter(x=> x.id != photoId);
-    });
   }
 
 }
